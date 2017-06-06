@@ -6,23 +6,25 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import com.philips.lighting.hue.listener.PHLightListener
 import com.philips.lighting.hue.sdk.PHAccessPoint
-import kotlinx.android.synthetic.main.activity_main.*
 import com.philips.lighting.hue.sdk.PHHueSDK
 import com.philips.lighting.model.PHBridge
-import com.philips.lighting.model.PHLight
 import com.philips.lighting.model.PHLightState
 import com.philips.lighting.hue.sdk.utilities.PHUtilities
-
-
+import io.realm.Realm
+import io.realm.RealmQuery
+import io.realm.RealmResults
 
 
 class MainActivity : AppCompatActivity() {
     lateinit var  phHueSDK : PHHueSDK
+    lateinit var realm : Realm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        realm = Realm.getDefaultInstance()
+
+
         phHueSDK = PHHueSDK.getInstance()
         phHueSDK.appName = "testApp"   // e.g. phHueSDK.setAppName("QuickStartApp");
         phHueSDK.deviceName = "android.os.Build.MODEL"  // e.g. If you are programming for Android: phHueSDK.setDeviceName(android.os.Build.MODEL);
@@ -78,5 +80,38 @@ class MainActivity : AppCompatActivity() {
     fun hueIntent(v:View){
         val intent = Intent(this, HueSettingActivity::class.java)
         startActivity(intent)
+    }
+    fun test1(v:View){
+        val realm = Realm.getDefaultInstance()
+        realm.beginTransaction()
+        //dbの準備
+        val model: HuisData = realm.createObject(HuisData::class.java)
+
+        //書き込みたいデータを作成
+        model.name = "aaa"
+        //model.(editText.getText().toString())
+
+        //トランザクション終了
+        realm.commitTransaction()
+
+    }
+    fun test2(v:View){
+        //検索用のクエリ作成
+        var query : RealmQuery<HuisData> = realm.where(HuisData::class.java)
+
+//        query.equalTo("name", "test");
+//        query.or().equalTo("id", 2);
+//        query.or().equalTo("id", 3);
+        //インスタンス生成し、その中にすべてのデータを入れる 配列で
+        var results :RealmResults<HuisData> = query.findAll()
+
+        //0番目を出力
+        //text.setText(results.get(0).getName());
+
+        //すべての値をログに出力
+        for (test in results){
+            System.out.println(test.name)
+        }
+
     }
 }
