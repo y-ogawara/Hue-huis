@@ -20,5 +20,18 @@
         android:layout_height="wrap_content"
         android:onClick="setBridge"
         android:text="Bridgeを設定" />
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="collarChange"
+        android:text="色" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="hueIntent"
+        android:text="hue設定" />
 
 </LinearLayout>

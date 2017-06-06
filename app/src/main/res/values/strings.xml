@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Hue-huis</string>
+    <string name="press_pushlink_button">Bridgeのボタンを押してください</string>
 </resources>
