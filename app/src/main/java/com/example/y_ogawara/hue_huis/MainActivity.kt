@@ -14,6 +14,7 @@ import com.philips.lighting.hue.sdk.utilities.PHUtilities
 import io.realm.Realm
 import io.realm.RealmQuery
 import io.realm.RealmResults
+import kotlin.concurrent.thread
 
 
 class MainActivity : AppCompatActivity() {
@@ -113,8 +114,27 @@ class MainActivity : AppCompatActivity() {
         //すべての値をログに出力
         for (test in results){
             println(test.keyCode)
-            println(test.name)
+            println("name   "+test.name)
             println(test.collarB)
+
+
+            if (test.name == "Hue"){
+                val cache = phHueSDK.selectedBridge.resourceCache
+                val myLights = cache.allLights
+
+
+
+                val bridge: PHBridge = PHHueSDK.getInstance().selectedBridge
+                val lightState = PHLightState()
+                val xy = PHUtilities.calculateXYFromRGB(test.collarR, test.collarG, test.collarB, myLights[1].modelNumber)
+                lightState.x = xy[0]
+                lightState.y = xy[1]
+                lightState.brightness = test.brightness
+                //lightState.hue = 50000
+                bridge.updateLightState(myLights[1], lightState)
+            }
+
+
         }
 
 
