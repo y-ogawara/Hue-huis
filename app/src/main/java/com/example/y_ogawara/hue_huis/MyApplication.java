@@ -15,8 +15,8 @@ public class MyApplication extends Application {
 
         // Realm設定ここから
         Realm.init(this);
-        RealmConfiguration config = new RealmConfiguration.Builder().build();
-        Realm.setDefaultConfiguration(config);
+//        RealmConfiguration config = new RealmConfiguration.Builder().build();
+//        Realm.setDefaultConfiguration(config);
         // Realm設定ここまで
     }
 }

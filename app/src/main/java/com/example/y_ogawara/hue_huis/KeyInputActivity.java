@@ -41,7 +41,7 @@ public class KeyInputActivity extends AppCompatActivity {
             intent.putExtra("rgb",getIntent.getIntArrayExtra("rgb"));
             intent.putExtra("picX",getIntent.getFloatExtra("picX",0));
             intent.putExtra("picY",getIntent.getFloatExtra("picY",0));
-            intent.putExtra("hueId",getIntent.getStringExtra("hueId"));
+            intent.putExtra("lightSpinner",getIntent.getStringExtra("lightSpinner"));
             startActivity(intent);
 
         }

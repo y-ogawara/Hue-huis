@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         realm = Realm.getDefaultInstance()
 
 
@@ -64,7 +65,6 @@ class MainActivity : AppCompatActivity() {
     }
     fun collarChange(v:View) {
         val cache = phHueSDK.selectedBridge.resourceCache
-// And now you can get any resource you want, for example:
         val myLights = cache.allLights
 
         val bridge: PHBridge = PHHueSDK.getInstance().selectedBridge
@@ -82,17 +82,17 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
     fun test1(v:View){
-        val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
         //dbの準備
-        val model: HuisData = realm.createObject(HuisData::class.java)
-
+//        var model :HuisData = realm.createObject(HuisData::class.java)
+        val model = realm.createObject(HuisData::class.java)
         //書き込みたいデータを作成
-        model.name = "aaa"
-        //model.(editText.getText().toString())
-
+        model.name = "bbb"
+        model.collarB = 1
         //トランザクション終了
         realm.commitTransaction()
+
+
 
     }
     fun test2(v:View){
@@ -101,7 +101,9 @@ class MainActivity : AppCompatActivity() {
 
 //        query.equalTo("name", "test");
 //        query.or().equalTo("id", 2);
-//        query.or().equalTo("id", 3);
+
+
+//        query.equalTo("name","bbb")
         //インスタンス生成し、その中にすべてのデータを入れる 配列で
         var results :RealmResults<HuisData> = query.findAll()
 
@@ -110,8 +112,21 @@ class MainActivity : AppCompatActivity() {
 
         //すべての値をログに出力
         for (test in results){
-            System.out.println(test.name)
+            println(test.keyCode)
+            println(test.name)
+            println(test.collarB)
         }
 
+
+
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(realm != null) {
+            realm.close()
+        }
+    }
+
+
 }
