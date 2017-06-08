@@ -157,48 +157,41 @@ class HueSettingActivity : AppCompatActivity() {
 
         else {
             ////新規コード//////////////////////////////
+            realm.beginTransaction()
 
-            //////object取得
-//            var query : RealmQuery<HuisData> = realm.where(HuisData::class.java)
-//            query.equalTo("keyCode",huisKeyCodeText.text.toString())
-//            var results : RealmResults<HuisData> = query.findAll()
-
-
+            var query : RealmQuery<HuisData> = realm.where(HuisData::class.java)
+            query.equalTo("name","Hue")
+            //インスタンス生成し、その中にすべてのデータを入れる 配列で
+            var results : HuisData? = query.findFirst()
+            if (results == null){
+                results = realm.createObject(HuisData::class.java)
+            }
 
 
             // 書き込み開始
-            realm.beginTransaction()
             //dbの準備
-            val model = realm.createObject(HuisData::class.java)
             if (rgb == null) {
                 rgb = intArrayOf(0,0,0)
             }
             //書き込みたいデータを作成
-            model.name = "Hue"
-            model.keyCode = huisKeyCodeText.text.toString()
-            model.lightState = spinnerStr
-            model.collarR = rgb!![0]
-            model.collarG = rgb!![1]
-            model.collarB = rgb!![2]
-            model.brightness = seekBar.progress
-
+            results!!.name = "Hue"
+            results.keyCode = huisKeyCodeText.text.toString()
+            results.lightState = spinnerStr
+            results.collarR = rgb!![0]
+            results.collarG = rgb!![1]
+            results.collarB = rgb!![2]
+            results.brightness = seekBar.progress
 
 
             // プルダウンで選択できるidを出す
-            model.hueId = lightSpinnerStr
+            results.hueId = lightSpinnerStr
 
 
             //トランザクション終了
             realm.commitTransaction()
-
-            //var huisData = HuisData()
-//            huisData.brightness
+            realm.close()
 
 
-            /////////////////////////////////////
-//            val arrayItems = arrayOf("Hue", huisKeyCodeText.text.toString(), spinnerStr, picX.toString(), picY.toString(), seekBar.progress.toString(), hueIdText.text.toString())
-//            saveArray(arrayItems, huisKeyCodeText.text.toString())
-//            Log.d("保存されたkey", huisKeyCodeText.text.toString())
 
 
             val intent = Intent(this, MainActivity::class.java)
