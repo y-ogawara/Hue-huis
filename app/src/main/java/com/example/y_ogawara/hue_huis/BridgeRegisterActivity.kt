@@ -16,10 +16,17 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences.Editor
 import android.os.Handler
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
+import android.app.ProgressDialog
+
+
 
 
 class BridgeRegisterActivity : AppCompatActivity(){
     lateinit var  phHueSDK : PHHueSDK
+    private val handler = Handler()
+    lateinit var progressDialog :ProgressDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bridge_register)
@@ -30,6 +37,14 @@ class BridgeRegisterActivity : AppCompatActivity(){
         phHueSDK = PHHueSDK.create()  // or call .getInstance() effectively the same.
         phHueSDK.notificationManager.registerSDKListener(listener)
         val sm = phHueSDK.getSDKService(PHHueSDK.SEARCH_BRIDGE) as PHBridgeSearchManager
+        // dialogをだす
+        progressDialog = ProgressDialog(this)
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
+        progressDialog.setMessage("Bridgeを検索中")
+        progressDialog.setCancelable(true)
+        progressDialog.show()
+
+        // 検索開始
         sm.search(true, true)
 
 
@@ -56,14 +71,18 @@ class BridgeRegisterActivity : AppCompatActivity(){
 
                 //Log.d("accessPoint",test.username)
             }
-            //Listの0番目のBridgeに接続
-            //後々ListViewに切り替え
-            phHueSDK.connect(accessPoint[0])
-
-
-
+            progressDialog.dismiss()
+            // Bridgeに接続しているか
+            if (!phHueSDK.isAccessPointConnected(accessPoint[0])){
+                //Listの0番目のBridgeに接続  Bridgeが複数ない前提
+                phHueSDK.connect(accessPoint[0])
+            }else{
+                handler.post({ run{
+                        Toast.makeText(applicationContext,"Bridgeに接続済みです",LENGTH_SHORT).show()
+                } })
+                finish()
+            }
         }
-
 
         override fun onCacheUpdated(arg0: List<Int>, bridge: PHBridge) {
             //Log.w(TAG, "On CacheUpdated")

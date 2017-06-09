@@ -38,18 +38,12 @@ class HueSettingActivity : AppCompatActivity() {
     lateinit var spinner: Spinner
     lateinit var lightSpinner: Spinner
 
-    //lateinit var hueIdText: EditText
     internal var flag = BooleanArray(4)
 
-    //デバッグ用
-    //    TextView picXText;
-    //    TextView picYText;
     //ColorPicker関連
 
     internal var selectColor: Int = 0
     internal var hsv = FloatArray(3)
-    //internal var picX: Float = 0.toFloat()
-    //internal var picY: Float = 0.toFloat()
     internal var rgb: IntArray? = null
     lateinit var mColorPickerDialog: ColorPickerDialog
     lateinit var seekBar: SeekBar
@@ -65,7 +59,6 @@ class HueSettingActivity : AppCompatActivity() {
         huisKeyCodeText = findViewById(R.id.huis_key) as TextView
         imageView = findViewById(R.id.imageView) as ImageView
         seekBar = findViewById(R.id.seekBar) as SeekBar
-        //hueIdText = findViewById(R.id.hueIdText) as EditText
 
         realm = Realm.getDefaultInstance()
 
@@ -83,10 +76,7 @@ class HueSettingActivity : AppCompatActivity() {
                     //RGBのint型に変換
                     rgb = RGB(hex)
                     //float型のxyに変換
-                    //xy(((float)rgb[0])/255,((float)rgb[1])/255,((float)rgb[2])/255);
                     imageView.setBackgroundColor(Color.rgb(rgb!![0], rgb!![1], rgb!![2]))
-                    //                        picXText.setText(String.valueOf(picX));
-                    //                        picYText.setText(String.valueOf(picY));
                 },
                 Color.BLACK)
         mColorPickerDialog.show()
@@ -106,16 +96,11 @@ class HueSettingActivity : AppCompatActivity() {
 
         //色
         rgb = intent.getIntArrayExtra("rgb")
-        //picX = intent.getFloatExtra("picX", 0f)
-        //picY = intent.getFloatExtra("picY", 0f)
         if (rgb != null) {
             imageView.setBackgroundColor(Color.rgb(rgb!![0], rgb!![1], rgb!![2]))
         }
         //hueId
         lightSpinner.setSelection(intent.getIntExtra("lightSpinner", 0))
-
-        //hueIdText.setText(intent.getStringExtra("hueId"))
-
 
     }
 
@@ -131,13 +116,9 @@ class HueSettingActivity : AppCompatActivity() {
         intent.putExtra("seekBar", seekBar.progress)
         //色
         intent.putExtra("rgb", rgb)
-        //intent.putExtra("picX", picX)
-        //intent.putExtra("picY", picY)
 
         //hueId番号
-
-
-        intent.putExtra("lightSpinner", lightSpinner.selectedItem.toString())
+        intent.putExtra("lightSpinner", lightSpinner.selectedItemPosition)
 
         //activity名
         intent.putExtra("ActivityName", "HueSettingActivity")
@@ -146,26 +127,16 @@ class HueSettingActivity : AppCompatActivity() {
 
     fun save(v: View) {
 
-        //何も入ってなかったら
-//        if (hueIdText.length() == 0) {
-//            Toast.makeText(this, "hueのIdが指定されていません", Toast.LENGTH_SHORT).show()
-//            Toast.makeText(this, "kadecotを開き、操作したいhueのidを確認してください", Toast.LENGTH_LONG).show()
-//        }
-        if (lightSpinner.selectedItem == ""){
+        if (huisKeyCodeText.text.toString() == ""){
+            Toast.makeText(this,"huisのボタンが選択されていません",LENGTH_SHORT).show()
 
+        }
+        else if (lightSpinner.selectedItem == ""){
+            Toast.makeText(this,"選択できる電球がありません",LENGTH_SHORT).show()
         }
 
         else {
-            ////新規コード//////////////////////////////
             realm.beginTransaction()
-
-            var query : RealmQuery<HuisData> = realm.where(HuisData::class.java)
-            query.equalTo("name","Hue")
-            //インスタンス生成し、その中にすべてのデータを入れる 配列で
-            var results : HuisData? = query.findFirst()
-            if (results == null){
-                results = realm.createObject(HuisData::class.java)
-            }
 
 
             // 書き込み開始
@@ -173,24 +144,22 @@ class HueSettingActivity : AppCompatActivity() {
             if (rgb == null) {
                 rgb = intArrayOf(0,0,0)
             }
+            val data = HuisData()
             //書き込みたいデータを作成
-            results!!.name = "Hue"
-            results.keyCode = huisKeyCodeText.text.toString()
-            results.lightState = spinnerStr
-            results.collarR = rgb!![0]
-            results.collarG = rgb!![1]
-            results.collarB = rgb!![2]
-            results.brightness = seekBar.progress
+            data.name = "Hue"
+            data.keyCode = huisKeyCodeText.text.toString()
+            data.lightState = spinnerStr
+            data.collarR = rgb!![0]
+            data.collarG = rgb!![1]
+            data.collarB = rgb!![2]
+            data.brightness = seekBar.progress
+            data.hueId = lightSpinnerStr
 
-
-            // プルダウンで選択できるidを出す
-            results.hueId = lightSpinnerStr
-
-
+            // プライマリーキーが同じならアップデート
+            realm.copyToRealmOrUpdate(data)
             //トランザクション終了
             realm.commitTransaction()
             realm.close()
-
 
 
 
@@ -207,22 +176,6 @@ class HueSettingActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-
-
-
-//    internal fun xy(red: Float, green: Float, blue: Float) {
-//        var red = red
-//        var green = green
-//        var blue = blue
-//        red = if (red > 0.04045f) pow(((red + 0.055f) / (1.0f + 0.055f)).toDouble(), 2.4).toFloat() else red / 12.92f
-//        green = if (green > 0.04045f) pow(((green + 0.055f) / (1.0f + 0.055f)).toDouble(), 2.4).toFloat() else green / 12.92f
-//        blue = if (blue > 0.04045f) pow(((blue + 0.055f) / (1.0f + 0.055f)).toDouble(), 2.4).toFloat() else blue / 12.92f
-//        val X = red * 0.664511f + green * 0.154324f + blue * 0.162028f
-//        val Y = red * 0.283881f + green * 0.668433f + blue * 0.047685f
-//        val Z = red * 0.000088f + green * 0.072310f + blue * 0.986039f
-//        picX = X / (X + Y + Z)
-//        picY = Y / (X + Y + Z)
-//    }
 
     internal fun RGB(str: String): IntArray {
         val rgb = IntArray(3)
@@ -317,7 +270,7 @@ class HueSettingActivity : AppCompatActivity() {
 
     internal fun seekBarSetUp() {
         seekBar.max = 255
-        seekBar.progress = 0
+        seekBar.progress = 1
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             // トラッキング開始時に呼び出されます
             override fun onStartTrackingTouch(seekBar: SeekBar) {

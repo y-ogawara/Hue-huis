@@ -30,6 +30,17 @@ public class KeyInputActivity extends AppCompatActivity {
         }
     }
     public void back(View v){
+        intent();
+    }
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        // キーコードを表示する
+        //Log.d("HUIS","KeyCode:" + e.getKeyCode());
+        keyText.setText(String.valueOf(e.getKeyCode()));
+        intent();
+        return super.dispatchKeyEvent(e);
+    }
+    void intent(){
         if (BeforeActivityName.equals("HueSettingActivity")) {
             Intent intent = new Intent(this,HueSettingActivity.class);
             intent.putExtra("keyCode",keyText.getText().toString());
@@ -41,11 +52,10 @@ public class KeyInputActivity extends AppCompatActivity {
             intent.putExtra("rgb",getIntent.getIntArrayExtra("rgb"));
             intent.putExtra("picX",getIntent.getFloatExtra("picX",0));
             intent.putExtra("picY",getIntent.getFloatExtra("picY",0));
-            intent.putExtra("lightSpinner",getIntent.getStringExtra("lightSpinner"));
+            intent.putExtra("lightSpinner",getIntent.getIntExtra("lightSpinner",0));
             startActivity(intent);
-
         }
-//        else if (BeforeActivityName.equals("IftttSettingActivity")){
+        //        else if (BeforeActivityName.equals("IftttSettingActivity")){
 //            Intent intent = new Intent(this,IftttSettingActivity.class);
 //            intent.putExtra("keyCode",keyText.getText().toString());
 //            intent.putExtra("eventText",getIntent.getStringExtra("eventText"));
@@ -55,13 +65,5 @@ public class KeyInputActivity extends AppCompatActivity {
 //
 //        }
 
-
-    }
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent e) {
-        // キーコードを表示する
-        Log.d("HUIS","KeyCode:" + e.getKeyCode());
-        keyText.setText(String.valueOf(e.getKeyCode()));
-        return super.dispatchKeyEvent(e);
     }
 }

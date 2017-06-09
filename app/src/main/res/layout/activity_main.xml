@@ -8,42 +8,22 @@
 
 
     <Button
-        android:id="@+id/button1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="setKey"
-        android:text="keyを追加" />
-
-    <Button
         android:id="@+id/button2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:onClick="setBridge"
         android:text="Bridgeを設定" />
-    <Button
-        android:id="@+id/button3"
+
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="collarChange"
-        android:text="色" />
+        android:layout_height="50dp" />
 
     <Button
         android:id="@+id/button4"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:onClick="hueIntent"
         android:text="hue設定" />
-    <Button
-        android:id="@+id/button5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="test1"
-        android:text="tes1" />
-    <Button
-        android:id="@+id/button6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="test2"
-        android:text="tes2" />
+
 
 </LinearLayout>
