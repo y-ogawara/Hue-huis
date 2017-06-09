@@ -40,7 +40,6 @@ class HueSettingActivity : AppCompatActivity() {
 
     //ColorPicker関連
     internal var selectColor: Int = 0
-    internal var hsv = FloatArray(3)
     internal var rgb: IntArray? = null
     lateinit var mColorPickerDialog: ColorPickerDialog
     lateinit var seekBar: SeekBar

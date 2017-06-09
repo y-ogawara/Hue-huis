@@ -9,6 +9,8 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.3.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "io.realm:realm-gradle-plugin:3.3.1"
+        classpath 'info.attosoft.licensetools:license-tools-plugin:0.19.1_r1'
+
 
 
         // NOTE: Do not place your application dependencies here; they belong
