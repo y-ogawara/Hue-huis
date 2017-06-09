@@ -38,10 +38,7 @@ class HueSettingActivity : AppCompatActivity() {
     lateinit var spinner: Spinner
     lateinit var lightSpinner: Spinner
 
-    internal var flag = BooleanArray(4)
-
     //ColorPicker関連
-
     internal var selectColor: Int = 0
     internal var hsv = FloatArray(3)
     internal var rgb: IntArray? = null
@@ -180,7 +177,6 @@ class HueSettingActivity : AppCompatActivity() {
     internal fun RGB(str: String): IntArray {
         val rgb = IntArray(3)
         if (str.length == 8) {
-            //r = hex2int(str.substring(0, 2));
             rgb[0] = parseInt(str.substring(2, 4), 16)
             rgb[1] = parseInt(str.substring(4, 6), 16)
             rgb[2] = parseInt(str.substring(6, 8), 16)
@@ -290,6 +286,10 @@ class HueSettingActivity : AppCompatActivity() {
                         seekBar.progress.toString())
             }
         })
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        realm.close()
     }
 
 }

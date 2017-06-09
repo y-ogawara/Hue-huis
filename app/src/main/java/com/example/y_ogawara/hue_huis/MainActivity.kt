@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
@@ -16,7 +18,9 @@ import com.philips.lighting.model.PHLightState
 import com.philips.lighting.hue.sdk.utilities.PHUtilities
 import io.realm.Realm
 import io.realm.RealmQuery
-import io.realm.RealmResults
+import io.realm.RealmConfiguration
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -95,8 +99,21 @@ class MainActivity : AppCompatActivity() {
         query.equalTo("name", "Hue").equalTo("keyCode", keyCode)
         //インスタンス生成し、その中にすべてのデータを入れる 配列で
         val result: HuisData? = query.findFirst()
-        if (result == null){
-            Toast.makeText(this,"そのキーは登録されていません",LENGTH_SHORT).show()
+        if (result == null) {
+            Toast.makeText(this, "そのキーは登録されていません", LENGTH_SHORT).show()
+            return
+        }
+
+        val pref = getSharedPreferences("data", Context.MODE_PRIVATE)
+        val ip = pref.getString("ipAddress", "null")
+        val username = pref.getString("username", "null")
+        val accessPoint: PHAccessPoint = PHAccessPoint()
+        accessPoint.ipAddress = ip
+        accessPoint.username = username
+
+        // Bridgeと接続できているか調べる
+        if (!phHueSDK.isAccessPointConnected(accessPoint)){
+            Toast.makeText(this,"bridgeと接続できていません",LENGTH_SHORT).show()
             return
         }
         val cache = phHueSDK.selectedBridge.resourceCache
@@ -106,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         // 電球の数だけ回す
         while (count < myLights.size) {
             // 電球の名前と、realmに保存されている電球の名前が一致したら抜ける
-            if (myLights[count].name == result!!.hueId) {
+            if (myLights[count].name == result.hueId) {
                 break
             }
             count++
@@ -114,7 +131,7 @@ class MainActivity : AppCompatActivity() {
         val bridge: PHBridge = PHHueSDK.getInstance().selectedBridge
         val lightState = PHLightState()
         // realmに入っている値が
-        if (result!!.lightState == "off") {
+        if (result.lightState == "off") {
             lightState.isOn = false
         } else {
             //電球をONに
@@ -130,4 +147,33 @@ class MainActivity : AppCompatActivity() {
         bridge.updateLightState(myLights[count], lightState)
         println("")
     }
+
+    fun deleteData() {
+        // realmのでデータを削除
+        realm.close()
+        val realmConfig = RealmConfiguration.Builder().build()
+        Realm.deleteRealm(realmConfig)
+        realm = Realm.getInstance(realmConfig)
+
+        // prefのデータを削除
+        val pref = getSharedPreferences("data", Context.MODE_PRIVATE)
+        val editor = pref.edit()
+        editor.clear().commit()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_deleteData -> {
+                deleteData()
+            }
+            //R.id.menu_help -> {Log.d("test", "Help selected.")}
+        }
+        return true
+    }
+
 }
