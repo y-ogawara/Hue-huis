@@ -23,7 +23,8 @@
         <activity android:name=".testActivity" />
         <activity android:name=".HueSettingActivity" />
         <activity android:name=".PHPushlinkActivity" />
-        <activity android:name=".KeyInputActivity"></activity>
+        <activity android:name=".KeyInputActivity" />
+        <activity android:name=".licenseActivity"></activity>
     </application>
 
 </manifest>

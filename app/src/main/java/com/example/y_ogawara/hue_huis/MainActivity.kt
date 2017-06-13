@@ -171,7 +171,10 @@ class MainActivity : AppCompatActivity() {
             R.id.menu_deleteData -> {
                 deleteData()
             }
-            //R.id.menu_help -> {Log.d("test", "Help selected.")}
+            R.id.menu_license -> {
+                val intent = Intent(this, licenseActivity::class.java)
+                startActivity(intent)
+            }
         }
         return true
     }
