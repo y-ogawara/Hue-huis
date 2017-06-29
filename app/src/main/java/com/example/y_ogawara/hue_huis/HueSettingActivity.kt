@@ -48,6 +48,9 @@ class HueSettingActivity : AppCompatActivity() {
     lateinit var lightSpinnerStr:String
     lateinit var phHueSDK :PHHueSDK
 
+    // lightSpinnerの中で、途中からgroupを表示するときに、groupが始まる数
+    var groupNum = 0
+
     lateinit var realm : Realm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,7 +132,14 @@ class HueSettingActivity : AppCompatActivity() {
         }
         else if (lightSpinner.selectedItem == ""){
             Toast.makeText(this,"選択できる電球がありません",LENGTH_SHORT).show()
+
+        }else if (lightSpinner.selectedItem == "******ライト******"){
+            Toast.makeText(this,"ライトは選択肢ではありません",LENGTH_SHORT).show()
+
+        }else if (lightSpinner.selectedItem == "******グループ******"){
+            Toast.makeText(this,"グループは選択肢ではありません",LENGTH_SHORT).show()
         }
+
 
         else {
             realm.beginTransaction()
@@ -142,7 +152,14 @@ class HueSettingActivity : AppCompatActivity() {
             }
             val data = HuisData()
             //書き込みたいデータを作成
-            data.name = "Hue"
+
+            // ライトの中から選択されているとき
+            if (lightSpinner.selectedItemPosition < groupNum) {
+                data.name = "Hue"
+            }else{
+                data.name = "HueGroup"
+            }
+
             data.keyCode = huisKeyCodeText.text.toString()
             data.lightState = spinnerStr
             data.collarR = rgb!![0]
@@ -216,9 +233,21 @@ class HueSettingActivity : AppCompatActivity() {
             var cache = phHueSDK.selectedBridge.resourceCache
             // hueのlightの数を取得
             val myLights = cache.allLights
+
+            // hueのグループが登録されている場合
+            var myGroups = cache.allGroups
+
+
+            adapter.add("******ライト******")
             // アイテムを追加します
             for (myLight in myLights){
                 adapter.add(myLight.name)
+            }
+            groupNum = myLights.size + 1
+            adapter.add("******グループ******")
+
+            for (myGroup in myGroups){
+                adapter.add(myGroup.name)
             }
 
         }catch (e: NullPointerException){
@@ -264,7 +293,7 @@ class HueSettingActivity : AppCompatActivity() {
     }
 
     internal fun seekBarSetUp() {
-        seekBar.max = 255
+        seekBar.max = 254
         seekBar.progress = 1
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             // トラッキング開始時に呼び出されます

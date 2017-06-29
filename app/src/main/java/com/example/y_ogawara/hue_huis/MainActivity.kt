@@ -93,15 +93,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun lightSet(keyCode: String) {
+        // Groupで設定したい場合はtrue
+        var HueGroup = false
         //検索用のクエリ作成
         val query: RealmQuery<HuisData> = realm.where(HuisData::class.java)
         // クエリに条件を設定
         query.equalTo("name", "Hue").equalTo("keyCode", keyCode)
         //インスタンス生成し、その中にすべてのデータを入れる 配列で
-        val result: HuisData? = query.findFirst()
+        var result: HuisData? = query.findFirst()
         if (result == null) {
-            Toast.makeText(this, "そのキーは登録されていません", LENGTH_SHORT).show()
-            return
+            val query2: RealmQuery<HuisData> = realm.where(HuisData::class.java)
+                query2.equalTo("name", "HueGroup").equalTo("keyCode", keyCode)
+            //インスタンス生成し、その中にすべてのデータを入れる 配列で
+            val result2: HuisData? = query2.findFirst()
+            HueGroup = true
+            if (result2 == null) {
+                Toast.makeText(this, "そのキーは登録されていません", LENGTH_SHORT).show()
+                return
+            }
+            result = result2
+
         }
 
         val pref = getSharedPreferences("data", Context.MODE_PRIVATE)
@@ -117,35 +128,81 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val cache = phHueSDK.selectedBridge.resourceCache
-        // bridgeに接続されているすべての電球を取得
-        val myLights = cache.allLights
-        var count = 0
-        // 電球の数だけ回す
-        while (count < myLights.size) {
-            // 電球の名前と、realmに保存されている電球の名前が一致したら抜ける
-            if (myLights[count].name == result.hueId) {
-                break
+        if (HueGroup){
+            val myGroups = cache.allGroups
+            var count = 0
+            // groupの数だけ回す
+            while (count < myGroups.size){
+                if (myGroups[count].name == result.hueId) {
+                    break
+                }
+                count++
             }
-            count++
+            val bridge: PHBridge = PHHueSDK.getInstance().selectedBridge
+            val lightState = lightStateMake(result.lightState,result.collarR,result.collarG,result.collarB,myGroups[count].modelId,result.brightness)
+            bridge.setLightStateForGroup(myGroups[count].identifier,lightState)
+
+        }else{
+            // bridgeに接続されているすべての電球を取得
+            val myLights = cache.allLights
+            var count = 0
+            // 電球の数だけ回す
+            while (count < myLights.size) {
+                // 電球の名前と、realmに保存されている電球の名前が一致したら抜ける
+                if (myLights[count].name == result.hueId) {
+                    break
+                }
+                count++
+            }
+            val bridge: PHBridge = PHHueSDK.getInstance().selectedBridge
+            val lightState = lightStateMake(result.lightState,result.collarR,result.collarG,result.collarB,myLights[count].modelNumber,result.brightness)
+            bridge.updateLightState(myLights[count], lightState)
+
         }
-        val bridge: PHBridge = PHHueSDK.getInstance().selectedBridge
+
+
+
+
+
+//        val bridge: PHBridge = PHHueSDK.getInstance().selectedBridge
+//        val lightState = PHLightState()
+//        // realmに入っている値が
+//        if (result.lightState == "off") {
+//            lightState.isOn = false
+//        } else {
+//            //電球をONに
+//            lightState.isOn = true
+//            // RGBをxyに変換
+//            //val xy = PHUtilities.calculateXYFromRGB(result.collarR, result.collarG, result.collarB, myLights[count].modelNumber)
+//            val xy = PHUtilities.calculateXYFromRGB(result.collarR, result.collarG, result.collarB,myGroup.modelId)
+//
+//            lightState.x = xy[0]
+//            lightState.y = xy[1]
+//            // 明るさを設定
+//            lightState.brightness = result.brightness
+//        }
+        // bridgeに書き込み
+//        bridge.updateLightState(myLights[count], lightState)
+//        bridge.setLightStateForGroup(myGroup.identifier,lightState)
+    }
+
+    fun  lightStateMake(isOn:String,collarR:Int,collarG:Int,collarB:Int,modelId:String,brightness:Int) :PHLightState{
         val lightState = PHLightState()
         // realmに入っている値が
-        if (result.lightState == "off") {
+        if (isOn == "off") {
             lightState.isOn = false
         } else {
             //電球をONに
             lightState.isOn = true
             // RGBをxyに変換
-            val xy = PHUtilities.calculateXYFromRGB(result.collarR, result.collarG, result.collarB, myLights[count].modelNumber)
+            val xy = PHUtilities.calculateXYFromRGB(collarR,collarG, collarB,modelId)
+
             lightState.x = xy[0]
             lightState.y = xy[1]
             // 明るさを設定
-            lightState.brightness = result.brightness
+            lightState.brightness = brightness
         }
-        // bridgeに書き込み
-        bridge.updateLightState(myLights[count], lightState)
-        println("")
+        return lightState
     }
 
     fun deleteData() {
